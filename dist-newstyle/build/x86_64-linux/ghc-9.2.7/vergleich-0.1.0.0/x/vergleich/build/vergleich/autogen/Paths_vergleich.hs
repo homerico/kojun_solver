@@ -42,12 +42,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/labsec/.cabal/bin"
-libdir     = "/home/labsec/.cabal/lib/x86_64-linux-ghc-9.2.7/vergleich-0.1.0.0-inplace-vergleich"
-dynlibdir  = "/home/labsec/.cabal/lib/x86_64-linux-ghc-9.2.7"
-datadir    = "/home/labsec/.cabal/share/x86_64-linux-ghc-9.2.7/vergleich-0.1.0.0"
-libexecdir = "/home/labsec/.cabal/libexec/x86_64-linux-ghc-9.2.7/vergleich-0.1.0.0"
-sysconfdir = "/home/labsec/.cabal/etc"
+bindir     = "/home/pedrohdq/.cabal/bin"
+libdir     = "/home/pedrohdq/.cabal/lib/x86_64-linux-ghc-9.2.7/vergleich-0.1.0.0-inplace-vergleich"
+dynlibdir  = "/home/pedrohdq/.cabal/lib/x86_64-linux-ghc-9.2.7"
+datadir    = "/home/pedrohdq/.cabal/share/x86_64-linux-ghc-9.2.7/vergleich-0.1.0.0"
+libexecdir = "/home/pedrohdq/.cabal/libexec/x86_64-linux-ghc-9.2.7/vergleich-0.1.0.0"
+sysconfdir = "/home/pedrohdq/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "vergleich_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "vergleich_libdir")     (\_ -> return libdir)
