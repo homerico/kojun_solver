@@ -16,17 +16,17 @@ solveVergleich rowCtrs colCtrs values = oneCSPSolution $ do
     where assertRowConstraints = mapAllPairsM_ (constraint2 (/=))
           assertSquareConstraints dvs i j =
             mapAllPairsM_ (constraint2 (/=)) [(dvs !! x) !! y | x <- [i..i+1], y <- [j..j+1]]
-          assertComparativeConstraints ctrs row = mapAllNeighborsM_ (mapM constraint2 ctrs) row
+          assertComparativeConstraints ctrs row = mapAllNeighborsM_ (fmap constraint2 ctrs) row
 
 mapAllPairsM_ :: Monad m => (a -> a -> m b) -> [a] -> m ()
 mapAllPairsM_ f []     = return()
 mapAllPairsM_ f (_:[]) = return ()
 mapAllPairsM_ f (a:l)  = mapM_ (f a) l >> mapAllPairsM_ f l
 
-mapAllNeighborsM_ :: Monad m => (a -> a -> m b) -> [a] -> m ()
+mapAllNeighborsM_ :: Monad m => [Maybe (a -> a -> m b)] -> [a] -> m ()
 mapAllNeighborsM_ f []     = return()
 mapAllNeighborsM_ f (_:[]) = return ()
-mapAllNeighborsM_ (f:r) (a:b:l)  = f a b >> mapAllNeighborsM_ r (b:l)
+mapAllNeighborsM_ (f:r) (a:b:l)  = f <*> Just a <*> Just b >> mapAllNeighborsM_ r (b:l)
 
 
 rowCtrs = [
