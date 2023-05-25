@@ -4,49 +4,43 @@ import HaskellSay (haskellSay)
 import Data.List
 import Control.Monad.CSP
 
-solveVergleich :: (Enum a, Eq a, Num a) => [[Maybe (a -> a -> Bool)]] -> [[Maybe (a -> a -> Bool)]] -> [[a]] -> [[a]]
-solveVergleich rowCtrs colCtrs values = oneCSPSolution $ do
-  dvs <- mapM (mapM (\a -> mkDV $ if a == 0 then [1..4] else [a])) values
-  mapM_ assertRowConstraints dvs
-  mapM_ assertRowConstraints $ transpose dvs
-  sequence_ [assertSquareConstraints dvs x y | x <- [0,2], y <- [0,2]]
-  sequence_ [assertComparativeConstraints (rowCtrs !! i) (dvs !! i) | i <- [0..3]]
-  sequence_ [assertComparativeConstraints ((transpose colCtrs) !! i) ((transpose dvs) !! i) | i <- [0..3]]
+solveVergleich :: [[Int]] -> [[Int]] -> [Result [[DV [[Int]] Int]]]
+solveVergleich values areas = allCSPSolutions $ do
+  dvs <- mapM (mapM (mkDV)) (map (map (getPossibilities)) [[[values !! x !! y, areas !! x !! y] | y <- [0..5]] | x <- [0..5]])
+  mapM_ applyNotEqConstraint [[dvs !! x !! y | x <- [0..5], y <- [0..5], areas !! x !! y == z] | z <- [1..(maximum (concat areas))]]
+  mapM_ applyNotEqConstraint [[dvs !! x !! y | x <- [z-1..z+1], y <- [h-1..h+1], ((x == z) || (y == h)), x >= 0, y >= 0, x < 6, y < 6] | z <- [0..5], h <- [0..5]]
+  mapM_ applyGreaterThanConstraint [[dvs !! x !! y, dvs !! (x+1) !! y] | x <- [0..4], y <- [0..5], (areas !! x !! y) == (areas !! (x+1) !! y)]
   return dvs
-    where assertRowConstraints = mapAllPairsM_ (constraint2 (/=))
-          assertSquareConstraints dvs i j =
-            mapAllPairsM_ (constraint2 (/=)) [(dvs !! x) !! y | x <- [i..i+1], y <- [j..j+1]]
-          assertComparativeConstraints ctrs row = mapAllNeighborsM_ (fmap constraint2 ctrs) row
+    where applyNotEqConstraint = mapAllPairsM_ (constraint2 (/=))
+          applyGreaterThanConstraint [a, b] = constraint2 (>) a b
 
 mapAllPairsM_ :: Monad m => (a -> a -> m b) -> [a] -> m ()
 mapAllPairsM_ f []     = return()
 mapAllPairsM_ f (_:[]) = return ()
 mapAllPairsM_ f (a:l)  = mapM_ (f a) l >> mapAllPairsM_ f l
 
-mapAllNeighborsM_ :: Monad m => [Maybe (a -> a -> m b)] -> [a] -> m ()
-mapAllNeighborsM_ f []     = return()
-mapAllNeighborsM_ f (_:[]) = return ()
-mapAllNeighborsM_ (f:r) (a:b:l)  = f <*> Just a <*> Just b >> mapAllNeighborsM_ r (b:l)
+areaSize :: (Eq a, Num a) => a -> [[a]] -> Int
+areaSize area areaz = length $ filter (== area) $ concat areaz
 
+getPossibilities ::  [Int] -> [Int]
+getPossibilities [] = []
+getPossibilities [value, area] = if value == 0 then [1..(areaSize area areas)] else [value]
 
-rowCtrs = [
-              [Just (<), Nothing, Just (>), Nothing],
-              [Just (>), Nothing, Just (<), Nothing],
-              [Just (>), Nothing, Just (<), Nothing],
-	      [Just (>), Nothing, Just (>), Nothing]]
+values = [[0, 0, 4, 0, 2, 0],
+          [0, 0, 3, 0, 0, 0],
+          [1, 4, 0, 4, 0, 0],
+          [0, 5, 0, 0, 0, 2],
+          [0, 0, 0, 0, 3, 0],
+          [6, 2, 0, 2, 0, 5]]
 
-colCtrs = [
-              [Just (>), Just (>), Just (<), Just (<)],
-              [Nothing , Nothing, Nothing, Nothing],
-	      [Just (<), Just (>), Just (>), Just (<)],
-              [Nothing , Nothing, Nothing, Nothing]]
-
-values = [[0,0,0,0],
-          [0,0,0,0],
-          [0,0,0,0],
-          [0,0,0,0]]
+areas = [[1, 2, 2, 2, 3, 4],
+         [1, 5, 2, 3, 3, 3],
+         [1, 1, 6, 3, 7, 7],
+         [8, 9, 6,10,10, 7],
+         [8, 9, 9,11,11, 7],
+         [9, 9, 9,11,11,11]]
 
 main :: IO ()
 main = do
     haskellSay "Ola mundo!"
-    putStrLn $ show $ solveVergleich rowCtrs colCtrs values
+    putStrLn $ show $ solveVergleich values areas
