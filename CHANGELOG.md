@@ -1,4 +1,4 @@
-# Revision history for vergleich
+# Revision history for kojun
 
 ## 0.1.0.0 -- YYYY-mm-dd
 

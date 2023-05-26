@@ -1,4 +1,4 @@
-# Vergleichssudoku solver
+# Kojun solver
 
 Executar seguinte comando para instalar o cabal:
 
